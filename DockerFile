@@ -1,0 +1,11 @@
+FROM python:3
+
+
+RUN pip3 install netstorageapi
+RUN pip3 install argparse
+RUN pip3 install xmltodict
+RUN pip3 install boto3
+
+COPY sync.py /
+
+ENTRYPOINT [ "python", "./sync.py" ]

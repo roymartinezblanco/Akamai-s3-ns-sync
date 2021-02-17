@@ -1,0 +1,34 @@
+[
+  {
+    "name": "NetStorageSync",
+    "image": "${repository}:latest",
+    "cpu": 0,
+    "portMappings": [],
+    "essential": true,
+    "environment": [
+      { "name": "CPCODE", "value": "${cpcode}" },
+      {
+        "name": "QUEUE_URL",
+        "value": "${sqs}"
+      },
+      { "name": "BUCKET", "value": "${bucket}" },
+      { "name": "REGION", "value": "${region}" }
+    ],
+    "mountPoints": [],
+    "volumesFrom": [],
+    "secrets": [
+      {
+        "name": "NS_SECRET",
+        "valueFrom": "${secret}"
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/ecs/NetstorageSync",
+        "awslogs-region": "us-east-1",
+        "awslogs-stream-prefix": "ecs"
+      }
+    }
+  }
+]
