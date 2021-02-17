@@ -1,6 +1,6 @@
 # AWS S3 event based replication to Akamai NetStorage
 
-[Sync.py](https://github.com/roymartinezblanco/Akamai-s3-ns-sync/blob/master/sync.py)
+![Diagram](https://raw.githubusercontent.com/roymartinezblanco/Akamai-s3-ns-sync/master/etc/diagram.png)
 
 # Terraform
 
