@@ -1,8 +1,13 @@
 # AWS S3 event based replication to Akamai NetStorage
 
+This is a sample starter project that show cases how to replicate between AWS s3 storage and Akamai Netstorage based on object events. (only create/update events for now)
+
+This project uses a Lambda s3 object event trigger function that adds the events to a SQS queue. This queue is read by a ECS Cluster task that processes the events and updates Netstorage.
+
 ![Diagram](https://raw.githubusercontent.com/roymartinezblanco/Akamai-s3-ns-sync/master/etc/diagram.png)
 
-# Terraform
+
+# [Terraform](https://github.com/roymartinezblanco/Akamai-s3-ns-sync/blob/master/terraform.tf)
 
 Functionality:
 - Creates AWS infrastructure:
@@ -54,7 +59,76 @@ COPY sync.py /
 ENTRYPOINT [ "python", "./sync.py" ]
 ```
 
-### [Sync.py](https://github.com/roymartinezblanco/Akamai-s3-ns-sync/blob/master/sync.py)
+### [Lambda Function](https://github.com/roymartinezblanco/Akamai-s3-ns-sync/blob/master/lambda_function.py)
+
+Lightweight python script that reads s3 events and adds them to SQS queue.
+
+#### Handler
+```python
+def lambda_handler(event, context):
+    configure_logging()
+    statusCode = 200
+    record_lst = []
+    logger.info ("Events {0} received.".format(len(event['Records'])))
+    
+    for record in event['Records']:
+        new_record = {
+            'eventName':record['eventName'],
+            'bucket':record['s3']['bucket']['name'],
+            'key':record['s3']['object']['key'],   
+            'etag':record['s3']['object']['eTag'],    
+            'sequencer':record['s3']['object']['sequencer']
+        }
+        
+        record_lst.append(new_record)
+    if addToQueue(record_lst) is False:
+        statusCode = 500        
+    if len(record_lst) == 0:
+        statusCode = 500
+    if statusCode == 500:
+        return {
+        'statusCode': statusCode,
+        'body': 'Error, {0}/{1} added to queue!'.format(len(record_lst),len(event['Records']))
+    }
+
+    
+
+    return {
+        'statusCode': statusCode,
+        'body': 'Success, {0}/{1} Added to queue!'.format(len(record_lst),len(event['Records']))
+
+    }
+
+```
+
+#### Add to Queue
+```python
+def addToQueue(record):
+    """
+    Description: add processed event to SQS Queue for processing
+    Links:
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.html#SQS.Client.send_message
+    Expects: 
+        record
+    Returns: Bool on success or failure
+    """
+    sqs = boto3.client('sqs')
+    
+    try: 
+        response = sqs.send_message(
+            QueueUrl= os.environ['queueUrl'],
+            DelaySeconds=0,
+            MessageBody=(json.dumps(record)),
+            MessageGroupId='S3-NS-SYNC'
+            
+        )
+        logger.info ("Record added to queue: {0}".format(record))
+    except Exception as e: 
+        logger.error ("Error adding record '{0}' to queue: {1}".format(record,e))
+        return False
+    return True
+```
+### [Container Worker](https://github.com/roymartinezblanco/Akamai-s3-ns-sync/blob/master/sync.py)
 
 Lightweight python script that is run by ECS instance. 
 
@@ -160,4 +234,20 @@ def popQueue(receipt_handle):
     )
     logger.info ("Event removed from queue: {0}".format(receipt_handle))
     return
+```
+
+## Contribute
+Want to contribute? Sure why not! just let me know!
+
+## Author
+Me https://roymartinez.dev/
+## Licensing
+I am providing code and resources in this repository to you under an open-source license. Because this is my repository, the license you receive to my code and resources is from me and not my employer (Akamai).
+
+```
+Copyright 2019 Roy Martinez
+
+Creative Commons Attribution 4.0 International License (CC BY 4.0)
+
+http://creativecommons.org/licenses/by/4.0/
 ```
