@@ -174,13 +174,6 @@ resource "aws_default_vpc" "default" {
   }
 }
 
-resource "aws_vpc" "AkamaiNetStorageSync" {
-  cidr_block = "10.0.0.0/16"
-  tags = {
-    Name = "AkamaiNetStorageSync VPC"
-  }
-}
-
 resource "aws_security_group" "EC2SecurityGroup" {
   description = "ECS Task Allowed Ports"
   name        = "SG-AkamaiNetStorageSync"
