@@ -7,7 +7,7 @@ REGION_NAME = os.environ['REGION']
 QUEUE_URL = os.environ['QUEUE_URL']
 CPCODE = os.environ['CPCODE']
 S3_BUCKET = os.environ['BUCKET']
-NS_SECRET = os.environ['NS_SECRET']
+SECRET = os.environ['NS_SECRET']
 
 logger = logging.getLogger("AKAM:S3-NS-SYNC")
 
@@ -65,10 +65,11 @@ def upload(CPCODE,path):
         path: s3 object key
     Returns: Bool based on task success.
     """
-    NS_USER = json.loads(NS_SECRET)['NS_USER']
-    NS_KEY = json.loads(NS_SECRET)['NS_KEY']
-    NS_HOSTNAME = json.loads(NS_SECRET)['NS_HOSTNAME']
     
+    NS_USER = json.loads(SECRET)['NS_USER']
+    NS_KEY = json.loads(SECRET)['NS_KEY']
+    NS_HOSTNAME = json.loads(SECRET)['NS_HOSTNAME']
+    logger.info("Uploading to Ns with user: '{0}'".format(NS_USER))
     ns = Netstorage(NS_HOSTNAME, NS_USER, NS_KEY, ssl=False)
  
     netstorage_destination = "/{0}/{1}".format(CPCODE,path)

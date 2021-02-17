@@ -97,7 +97,7 @@ resource "aws_iam_role" "iam_lambda_ecs_exec" {
 
 resource "aws_iam_role_policy_attachment" "ecs-readSecrets-role-policy-attach" {
   role       = aws_iam_role.iam_lambda_ecs_exec.name
-  policy_arn = aws_iam_policy.iam_policy_readSecrets.arn
+  policy_arn = "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
 }
 resource "aws_iam_role_policy_attachment" "ecs-exec-role-policy-attach" {
   role       = aws_iam_role.iam_lambda_ecs_exec.name
@@ -113,6 +113,10 @@ resource "aws_iam_role_policy_attachment" "s3-read-role-policy-attach" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
 }
 
+resource "aws_iam_role_policy_attachment" "ecs-tasi-readSecrets-role-policy-attach" {
+  role       = aws_iam_role.iam_lambda_ecs_task.name
+  policy_arn = "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
+}
 ## END IAM 
 
 ## START Lambda
@@ -254,7 +258,7 @@ resource "aws_ecr_repository" "akamainetstoragesync" {
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
-    scan_on_push = true
+    scan_on_push = false
   }
 } 
 
@@ -285,6 +289,7 @@ resource "null_resource" "pushImage" {
 }
 
 ## END ECR Container Repository
+
 ## START ECS Container Service
 resource "aws_ecs_cluster" "ECSCluster" {
   name = "AkamaiNetStorageSync"
