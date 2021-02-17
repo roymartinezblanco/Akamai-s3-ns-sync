@@ -1,6 +1,7 @@
 variable "bucket" {
   type = string
 }
+
 variable "projectname" {
   default = "akamNestorageSync"
 }
