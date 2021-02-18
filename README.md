@@ -2,7 +2,9 @@
 
 This is a sample starter project that show cases how to replicate between AWS s3 storage and Akamai Netstorage based on object events. (only create/update events for now)
 
-This project uses a Lambda s3 object event trigger function that adds the events to a SQS queue. This queue is read by a ECS Cluster task that processes the events and updates Netstorage.
+This project uses a Lambda s3 object event trigger function that adds the events to a SQS queue. This queue is read by a ECS Cluster task that processes the events and updates Netstorage. 
+
+> The scope of this POC is to provide the means/example on how to get started but additional changes will be needed, like: add auto scaling of task based on SQS Queue or creation of Task schedule, etc.
 
 ![Diagram](https://raw.githubusercontent.com/roymartinezblanco/Akamai-s3-ns-sync/master/etc/diagram.png)
 

@@ -6,6 +6,7 @@ variable "projectname" {
   default = "akamNestorageSync"
 }
 
+
 variable "accountid"{
   type = string
 }
