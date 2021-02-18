@@ -69,6 +69,7 @@ resource "aws_iam_role" "iam_lambda_sqs" {
   max_session_duration = 3600
 
 }
+
 resource "aws_iam_role_policy_attachment" "sqs-full-role-policy-attach" {
   role       = aws_iam_role.iam_lambda_sqs.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
