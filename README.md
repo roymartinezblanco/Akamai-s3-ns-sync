@@ -4,7 +4,7 @@ This is a sample starter project that show cases how to replicate between AWS s3
 
 This project uses a Lambda s3 object event trigger function that adds the events to a SQS queue. This queue is read by a ECS Cluster task that processes the events and updates Netstorage. 
 
-> The scope of this POC is to provide the means/example on how to get started but additional changes will be needed, like: add auto scaling of task based on SQS Queue or creation of Task schedule, etc.
+> The scope of this POC is to provide the means/example on how to get started, but additional changes will be needed, like: adjusting auto scaling, exploring SQS long poling or creation of Task schedule, etc.
 
 ![Diagram](https://raw.githubusercontent.com/roymartinezblanco/Akamai-s3-ns-sync/master/etc/diagram.png)
 
@@ -25,6 +25,7 @@ Functionality:
     * ECS Container Cluster
     * ECS Container Service
     * ECS Container Task
+    * ECS Step Autoscaling
 
 - Other:
     * Builds Docker Image
@@ -35,20 +36,21 @@ Functionality:
 
 |Argument| Purpose|
 |---------|--------|
-| bucket  |  [Requiered] S3 Bucket to be replicated. |
-| accountid |  [Requiered] AWS Account ID |
-| region |  [Requiered] AWS region |
-| cpcode |  [Requiered] Akamai NetStorage CPCODE |
-| secret |  [Requiered] NetStorage API Credentials, in Json format. Expects Hostname, username and Key  |
+| bucket  |  [Required] S3 Bucket to be replicated. |
+| accountid |  [Required] AWS Account ID |
+| region |  [Required] AWS region |
+| cpcode |  [Required] Akamai NetStorage CPCODE |
+| secret |  [Required] NetStorage API Credentials, in Json format. Expects Hostname, username and Key  |
+| natgwrtid | [Required] The route table ID for private subnets to route to the NAT Gateway. This project creates 2 private subnets in the Default 172.31.0.0/16 VPC and will use existing NAT Gateway configuration |
 
 ### Example:
 #### Plan
 ```sh
-terraform plan -var='bucket=CHANGE_ME' -var='accountid=CHANGE_ME' -var='cpcode=CHANGE_ME' -var='region=CHANGE_ME' -var='secret={"NS_HOSTNAME":"CHANGE_ME","NS_USER":"CHANGE_ME","NS_KEY":"CHANGE_ME"}'
+terraform plan -var='bucket=CHANGE_ME' -var='accountid=CHANGE_ME' -var='cpcode=CHANGE_ME' -var='region=CHANGE_ME' -var='secret={"NS_HOSTNAME":"CHANGE_ME","NS_USER":"CHANGE_ME","NS_KEY":"CHANGE_ME"}' -var='natgwrtid=CHANGE_ME'
 ```
 #### Apply
 ```sh
-terraform apply -var='bucket=CHANGE_ME' -var='accountid=CHANGE_ME' -var='cpcode=CHANGE_ME' -var='region=CHANGE_ME' -var='secret={"NS_HOSTNAME":"CHANGE_ME","NS_USER":"CHANGE_ME","NS_KEY":"CHANGE_ME"}'
+terraform apply -var='bucket=CHANGE_ME' -var='accountid=CHANGE_ME' -var='cpcode=CHANGE_ME' -var='region=CHANGE_ME' -var='secret={"NS_HOSTNAME":"CHANGE_ME","NS_USER":"CHANGE_ME","NS_KEY":"CHANGE_ME"}' -var='natgwrtid=CHANGE_ME'
 ```
 
 ### Container
@@ -121,7 +123,7 @@ def addToQueue(record):
             QueueUrl= os.environ['queueUrl'],
             DelaySeconds=0,
             MessageBody=(json.dumps(record)),
-            MessageGroupId='S3-NS-SYNC'
+            MessageGroupId=str(int(time.time()))
             
         )
         logger.info ("Record added to queue: {0}".format(record))

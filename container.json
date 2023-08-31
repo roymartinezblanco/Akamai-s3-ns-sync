@@ -26,8 +26,9 @@
       "logDriver": "awslogs",
       "options": {
         "awslogs-group": "/ecs/NetstorageSync",
-        "awslogs-region": "us-east-1",
-        "awslogs-stream-prefix": "ecs"
+        "awslogs-region": "${region}",
+        "awslogs-stream-prefix": "NetStorageSync",
+        "awslogs-create-group": "true"
       }
     }
   }
