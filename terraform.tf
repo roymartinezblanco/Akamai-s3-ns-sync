@@ -75,6 +75,11 @@ resource "aws_iam_role_policy_attachment" "sqs-full-role-policy-attach" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
 }
 
+resource "aws_iam_role_policy_attachment" "lambda-execution-policy-attach" {
+  role       = aws_iam_role.iam_lambda_sqs.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
 resource "aws_iam_role" "iam_lambda_ecs_task" {
   path                 = "/service-role/"
   name                 = "AkamaiNetStorageSync_ecs_task"
@@ -224,7 +229,7 @@ resource "aws_security_group" "EC2SecurityGroup" {
 
 resource "aws_subnet" "EC2Subnet" {
     availability_zone = "${var.region}b"
-    cidr_block = "172.31.30.0/24"
+    cidr_block = "172.31.100.0/24"
     vpc_id = aws_default_vpc.default.id
     map_public_ip_on_launch = false
     tags = {
@@ -234,7 +239,7 @@ resource "aws_subnet" "EC2Subnet" {
 
 resource "aws_subnet" "EC2Subnet2" {
     availability_zone = "${var.region}a"
-    cidr_block = "172.31.50.0/24"
+    cidr_block = "172.31.101.0/24"
     vpc_id = aws_default_vpc.default.id
     map_public_ip_on_launch = false
     tags = {

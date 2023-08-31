@@ -1,0 +1,6 @@
+terraform.tf    Bump default subnets high in CIDR range as it can confilct with default VPC ranges.
+lambda to SQS   Single SQS FIFO group ID prevents ECS scaling as only 10 messages can be pulled at a time per group ID preventing parrallel processing of the queue. In the case of needing to upload
+                thousands of S3 objects, scalling using parrallel uploads to Akamai over exact order is typically prefered (exact order is not guarenteed from S3 delivery to Lambda anyway). A FIFO
+                SQS queue will help with exactly once delivery, as required when uploading large files (why do it twice?) and using a group ID to the EPOCH second will alow for multiple ECS tasks
+                to run in parrallel processing the files, 10 at a time, that arrived in that second.
+lambnda logs    Logs were not going to CloudWatch logs

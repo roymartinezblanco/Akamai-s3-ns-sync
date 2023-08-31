@@ -1,4 +1,4 @@
-import json,boto3,os,logging
+import json,boto3,os,logging,time
 from botocore.exceptions import ClientError
 
 logger = logging.getLogger("AKAM:S3-NS-SYNC")
@@ -12,6 +12,7 @@ def configure_logging():
     ch.setLevel(logging.DEBUG)
     ch.setFormatter(formatter)
     logger.addHandler(ch)
+    
 def addToQueue(record):
     """
     Description: add processed event to SQS Queue for processing
@@ -25,11 +26,10 @@ def addToQueue(record):
     
     try: 
         response = sqs.send_message(
-            QueueUrl= os.environ['queueUrl'],
+            QueueUrl=os.environ['queueUrl'],
             DelaySeconds=0,
             MessageBody=(json.dumps(record)),
-            MessageGroupId='S3-NS-SYNC'
-            
+            MessageGroupId=str(int(time.time()))
         )
         logger.info ("Record added to queue: {0}".format(record))
     except Exception as e: 
@@ -37,7 +37,6 @@ def addToQueue(record):
         return False
     return True
 
-    
 def lambda_handler(event, context):
     configure_logging()
     statusCode = 200
@@ -64,10 +63,7 @@ def lambda_handler(event, context):
         'body': 'Error, {0}/{1} added to queue!'.format(len(record_lst),len(event['Records']))
     }
 
-    
-
     return {
         'statusCode': statusCode,
         'body': 'Success, {0}/{1} Added to queue!'.format(len(record_lst),len(event['Records']))
-
     }
