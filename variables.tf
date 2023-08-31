@@ -6,20 +6,22 @@ variable "projectname" {
   default = "akamNestorageSync"
 }
 
-
-variable "accountid"{
+variable "accountid" {
   type = string
 }
+
 variable "cpcode" {
   type = string
 }
-
 
 variable "region" {
   type = string
 }
 
 variable "secret" {
-
   type = map(string)
+}
+
+variable "natgwrtid" {
+  type = string
 }
